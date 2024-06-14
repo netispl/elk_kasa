@@ -1,52 +1,73 @@
 - hosts: localhost
   become: true
-  
+
   vars_files:
     - vault
 
   tasks:
 
     - set_fact:
-        KASA_HOSTNAME: "{{ lookup('file', '/etc/hostname') }}"
+        KASA_HOSTNAME_OLD: "{{ ansible_hostname }}"
+
+    - set_fact:
+        #KASA_HOSTNAME: "{{ lookup('file', '/etc/hostname') }}"
+        KASA_HOSTNAME: "{{ HOST }}"
 
     - set_fact:
         SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
-  
+
+    - name: Zmiana hostname
+      hostname:
+        name: "{{ KASA_HOSTNAME }}"
+
+    - name: Zmiana hostname w .Xauthority
+      replace:
+        dest: /home/kasa/.Xauthority
+        regexp: '{{ KASA_HOSTNAME_OLD }}'
+        replace: '{{ KASA_HOSTNAME }}'
+
+    - name: Zmiana w /etc/hosts
+      replace:
+        dest: /etc/hosts
+        regexp: '(^127.*)(kasa.*)'
+        replace: '\1\t{{ KASA_HOSTNAME }}'
+        backup: yes
+
     - name: Dodanie klucza do apta
       apt_key:
         url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
         state: present
-  
+
     - name: Inslacja apt-transport-https
       apt:
         state: present
         name: apt-transport-https
         update_cache: no
-  
+
     - name: Dodanie do repo
       apt_repository:
         repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
         state: present
         filename: elastic-8.x.list
-  
+
     - name: Instalacja wtyczek
       apt:
         state: present
         update_cache: yes
-        name:      
+        name:
           - metricbeat
           - filebeat
-  
+
     - name: Kopiowanie konfiguracji metricbeat
       template:
         src: templates/metricbeat.j2
         dest: /etc/metricbeat/metricbeat.yml
-  
+
     - name: Kopiowanie konfiguracji filebeat
       template:
         src: templates/filebeat.j2
         dest: /etc/filebeat/filebeat.yml
-    
+
     - name: Wlaczanie uslug
       systemd:
          state: started
@@ -55,4 +76,3 @@
       loop:
         - metricbeat.service
         - filebeat.service
-
