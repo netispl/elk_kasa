@@ -1,53 +1,53 @@
 - hosts: all
   become: true
 
-tasks:
+  tasks:
 
-  - set_fact:
-      KASA_HOSTNAME: {{ lookup('file', '/etc/hostname') }}
-
-  - name: Dodanie klucza do apta
-    apt_key:
-      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-      state: present
-
-  - name: Inslacja apt-transport-https
-    apt:
-      state: present
-      name: apt-transport-https
-      update_cache: no
-
-  - name: Dodanie do repo
-    apt_repository:
-      repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
-      state: present
-      filename: elastic-8.x.list
-
-  - name: Instalacja wtyczek
-    apt:
-      state: present
-      update_cache: yes
-      name:      
+    - set_fact:
+        KASA_HOSTNAME: {{ lookup('file', '/etc/hostname') }}
+  
+    - name: Dodanie klucza do apta
+      apt_key:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        state: present
+  
+    - name: Inslacja apt-transport-https
+      apt:
+        state: present
+        name: apt-transport-https
+        update_cache: no
+  
+    - name: Dodanie do repo
+      apt_repository:
+        repo: "deb https://artifacts.elastic.co/packages/8.x/apt stable main"
+        state: present
+        filename: elastic-8.x.list
+  
+    - name: Instalacja wtyczek
+      apt:
+        state: present
+        update_cache: yes
+        name:      
+          - metricbeat
+          - filebaet
+  
+    - name: Kopiowanie konfiguracji
+        template:
+          src: templates/metricbeat.j2
+          dest: /etc/metricbeat/metricbeat.yml
+  
+    - name: Metricbeat setup
+      command: "{{ item }}" setup
+      loop:
         - metricbeat
-        - filebaet
-
-  - name: Kopiowanie konfiguracji
-      template:
-        src: templates/metricbeat.j2
-        dest: /etc/metricbeat/metricbeat.yml
-
-  - name: Metricbeat setup
-    command: "{{ item }}" setup
-    loop:
-      - metricbeat
-#     - filebeat
-
-  - name: Wlaczanie uslug
-    systemd:
-       state: started
-       enabled: yes
-       name: "{{ item }}"
-    loop:
-      - metricbeat
-#     - filebeat
+  #     - filebeat
+  
+    - name: Wlaczanie uslug
+      systemd:
+         state: started
+         enabled: yes
+         name: "{{ item }}"
+      loop:
+        - metricbeat
+  #     - filebeat
 
