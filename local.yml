@@ -24,7 +24,8 @@
       replace:
         dest: /etc/hosts
         regexp: '(^127.*)(kasa.*)'
-        replace: '\1 {{ KASA_HOSTNAME }}'
+        replace: '\1{{ KASA_HOSTNAME }}'
+        backup: yes
     
     - name: Zmiana hostname w .Xauthority
       replace:
