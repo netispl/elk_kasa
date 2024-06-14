@@ -4,7 +4,7 @@
   tasks:
 
     - set_fact:
-        KASA_HOSTNAME: {{ lookup('file', '/etc/hostname') }}
+        KASA_HOSTNAME: "{{ lookup('file', '/etc/hostname') }}"
   
     - name: Dodanie klucza do apta
       apt_key:
