@@ -29,7 +29,7 @@
         update_cache: yes
         name:      
           - metricbeat
-          - filebaet
+          - filebeat
   
     - name: Kopiowanie konfiguracji
       template:
@@ -40,7 +40,7 @@
       command: "{{ item }} setup"
       loop:
         - metricbeat
-  #     - filebeat
+        - filebeat
   
     - name: Wlaczanie uslug
       systemd:
@@ -49,5 +49,5 @@
          name: "{{ item }}"
       loop:
         - metricbeat
-  #     - filebeat
+        - filebeat
 
