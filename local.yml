@@ -27,6 +27,8 @@
         replace: '\1{{ KASA_HOSTNAME }}'
         backup: yes
     
+    - shell: hostname -F /etc/hostname
+
     - name: Zmiana hostname w .Xauthority
       replace:
         dest: /home/kasa/.Xauthority
@@ -42,7 +44,7 @@
       apt:
         state: present
         name: apt-transport-https
-        update_cache: no
+        update_cache: yes
 
     - name: Dodanie do repo
       apt_repository:
