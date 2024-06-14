@@ -29,7 +29,7 @@ tasks:
       update_cache: yes
       name:      
         - metricbeat
-#       - filebaet
+        - filebaet
 
   - name: Kopiowanie konfiguracji
       template:
