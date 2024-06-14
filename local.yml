@@ -20,18 +20,17 @@
       hostname:
         name: "{{ KASA_HOSTNAME }}"
 
+    - name: Zmiana w /etc/hosts
+      replace:
+        dest: /etc/hosts
+        regexp: '(^127.*)(kasa.*)'
+        replace: '\1 {{ KASA_HOSTNAME }}'
+    
     - name: Zmiana hostname w .Xauthority
       replace:
         dest: /home/kasa/.Xauthority
         regexp: '{{ KASA_HOSTNAME_OLD }}'
         replace: '{{ KASA_HOSTNAME }}'
-
-    - name: Zmiana w /etc/hosts
-      replace:
-        dest: /etc/hosts
-        regexp: '(^127.*)(kasa.*)'
-        replace: '\1\t{{ KASA_HOSTNAME }}'
-        backup: yes
 
     - name: Dodanie klucza do apta
       apt_key:
