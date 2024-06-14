@@ -5,6 +5,9 @@
 
     - set_fact:
         KASA_HOSTNAME: "{{ lookup('file', '/etc/hostname') }}"
+
+    - set_fact:
+        SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
   
     - name: Dodanie klucza do apta
       apt_key:
@@ -31,23 +34,22 @@
           - metricbeat
           - filebeat
   
-    - name: Kopiowanie konfiguracji
+    - name: Kopiowanie konfiguracji metricbeat
       template:
         src: templates/metricbeat.j2
         dest: /etc/metricbeat/metricbeat.yml
   
-    - name: Metricbeat setup
-      command: "{{ item }} setup"
-      loop:
-        - metricbeat
-        - filebeat
-  
+    - name: Kopiowanie konfiguracji filebeat
+      template:
+        src: templates/filebeat.j2
+        dest: /etc/metricbeat/filebeat.yml
+    
     - name: Wlaczanie uslug
       systemd:
          state: started
          enabled: yes
          name: "{{ item }}"
       loop:
-        - metricbeat
-        - filebeat
+        - metricbeat.service
+        - filebeat.service
 

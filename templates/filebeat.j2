@@ -1,15 +1,61 @@
-###################### Metricbeat Configuration Example #######################
+###################### Filebeat Configuration Example #########################
 
 # This file is an example configuration file highlighting only the most common
-# options. The metricbeat.reference.yml file from the same directory contains all the
+# options. The filebeat.reference.yml file from the same directory contains all the
 # supported options with more comments. You can use it as a reference.
 #
 # You can find the full configuration reference here:
-# https://www.elastic.co/guide/en/beats/metricbeat/index.html
+# https://www.elastic.co/guide/en/beats/filebeat/index.html
 
-# =========================== Modules configuration ============================
+# For more available modules and options, please see the filebeat.reference.yml sample
+# configuration file.
 
-metricbeat.config.modules:
+# ============================== Filebeat inputs ===============================
+
+filebeat.inputs:
+
+# Each - is an input. Most options can be set at the input level, so
+# you can use different inputs for various configurations.
+# Below are the input-specific configurations.
+
+# filestream is an input for collecting log messages from files.
+- type: filestream
+
+  # Unique ID among all inputs, an ID is required.
+  id: {{ KASA_HOSTNAME }}
+
+  # Change to true to enable this input configuration.
+  enabled: true
+
+  # Paths that should be crawled and fetched. Glob based paths.
+  paths:
+    - /home/kasa/logi/1/df_interf*
+
+  # Exclude lines. A list of regular expressions to match. It drops the lines that are
+  # matching any regular expression from the list.
+  # Line filtering happens after the parsers pipeline. If you would like to filter lines
+  # before parsers, use include_message parser.
+  #exclude_lines: ['^DBG']
+
+  # Include lines. A list of regular expressions to match. It exports the lines that are
+  # matching any regular expression from the list.
+  # Line filtering happens after the parsers pipeline. If you would like to filter lines
+  # before parsers, use include_message parser.
+  include_lines: ['.Program kasnet.','.Terminal.']
+
+  # Exclude files. A list of regular expressions to match. Filebeat drops the files that
+  # are matching any regular expression from the list. By default, no files are dropped.
+  #prospector.scanner.exclude_files: ['.gz$']
+
+  # Optional additional fields. These fields can be freely picked
+  # to add additional information to the crawled log files for filtering
+  #fields:
+  #  level: debug
+  #  review: 1
+
+# ============================== Filebeat modules ==============================
+
+filebeat.config.modules:
   # Glob pattern for configuration loading
   path: ${path.config}/modules.d/*.yml
 
@@ -23,7 +69,7 @@ metricbeat.config.modules:
 
 setup.template.settings:
   index.number_of_shards: 1
-  index.codec: best_compression
+  #index.codec: best_compression
   #_source.enabled: false
 
 
@@ -35,12 +81,12 @@ name: {{ KASA_HOSTNAME }}
 
 # The tags of the shipper are included in their field with each
 # transaction published.
-tags: ["{{ SIEC }}-kasy", "{{ SIEC }}-kasy-metric", "{{ KASA_HOSTNAME }}"]
+tags: ["{{ SIEC }}-kasy", "{{ SIEC }}-kasy-log", "{{ KASA_HOSTNAME }}"]
 
 # Optional fields that you can specify to add additional information to the
 # output.
-#fields:
-#  env: staging
+fields:
+  env: prod
 
 # ================================= Dashboards =================================
 # These settings control loading the sample dashboards to the Kibana index. Loading
@@ -73,7 +119,7 @@ setup.kibana:
 
 # =============================== Elastic Cloud ================================
 
-# These settings simplify using Metricbeat with the Elastic Cloud (https://cloud.elastic.co/).
+# These settings simplify using Filebeat with the Elastic Cloud (https://cloud.elastic.co/).
 
 # The cloud.id setting overwrites the `output.elasticsearch.hosts` and
 # `setup.kibana.host` options.
@@ -89,28 +135,26 @@ setup.kibana:
 # Configure what output to use when sending the data collected by the beat.
 
 # ---------------------------- Elasticsearch Output ----------------------------
-output.elasticsearch:
+#output.elasticsearch:
   # Array of hosts to connect to.
-  hosts: ["{{ ELASTIC_HOST }}"]
+  #hosts: ["localhost:9200"]
 
   # Performance preset - one of "balanced", "throughput", "scale",
   # "latency", or "custom".
-  preset: balanced
+  #preset: balanced
 
   # Protocol - either `http` (default) or `https`.
-  protocol: "https"
+  #protocol: "https"
 
   # Authentication credentials - either API key or username/password.
   #api_key: "id:api_key"
-  username: "{{ ELASTIC_LOGIN }}"
-  password: "{{ ELASTIC_PASS }}"
-
-
+  #username: "elastic"
+  #password: "changeme"
 
 # ------------------------------ Logstash Output -------------------------------
-#output.logstash:
+output.logstash:
   # The Logstash hosts
-  #hosts: ["localhost:5044"]
+  hosts: ["{{ LOGSTASH_HOST }}"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
@@ -123,15 +167,12 @@ output.elasticsearch:
   #ssl.key: "/etc/pki/client/cert.key"
 
 # ================================= Processors =================================
-
-# Configure processors to enhance or manipulate events generated by the beat.
-
 processors:
-  - add_host_metadata: ~
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
   - add_kubernetes_metadata: ~
-
 
 # ================================== Logging ===================================
 
@@ -146,13 +187,14 @@ logging.level: info
 
 logging.to_files: true
 logging.files:
-  path: /var/log/metricbeat
-  name: metricbeat
+  path: /var/log/filebeat
+  name: filebeat
   keepfiles: 1
   permissions: 0640
 
+
 # ============================= X-Pack Monitoring ==============================
-# Metricbeat can export internal metrics to a central Elasticsearch monitoring
+# Filebeat can export internal metrics to a central Elasticsearch monitoring
 # cluster.  This requires xpack monitoring to be enabled in Elasticsearch.  The
 # reporting is disabled by default.
 
@@ -160,7 +202,7 @@ logging.files:
 #monitoring.enabled: false
 
 # Sets the UUID of the Elasticsearch cluster under which monitoring data for this
-# Metricbeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
+# Filebeat instance will appear in the Stack Monitoring UI. If output.elasticsearch
 # is enabled, the UUID is derived from the Elasticsearch cluster referenced by output.elasticsearch.
 #monitoring.cluster_uuid:
 
@@ -175,12 +217,12 @@ logging.files:
 
 # ============================== Instrumentation ===============================
 
-# Instrumentation support for the metricbeat.
+# Instrumentation support for the filebeat.
 #instrumentation:
-    # Set to true to enable instrumentation of metricbeat.
+    # Set to true to enable instrumentation of filebeat.
     #enabled: false
 
-    # Environment in which metricbeat is running on (eg: staging, production, etc.)
+    # Environment in which filebeat is running on (eg: staging, production, etc.)
     #environment: ""
 
     # APM Server hosts to report instrumentation results to.
