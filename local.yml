@@ -1,5 +1,8 @@
 - hosts: localhost
   become: true
+  
+  vars_files:
+    - vault
 
   tasks:
 
@@ -38,12 +41,6 @@
       template:
         src: templates/metricbeat.j2
         dest: /etc/metricbeat/metricbeat.yml
-        vars:
-          ELASTIC_HOST: "{{ ELASTIC_HOST_VAULT }}"
-          ELASTIC_LOGIN: "{{ ELASTIC_LOGIN_VAULT }}"
-          ELASTIC_PASS: "{{ ELASTIC_PASS_VAULT }}"
-          KIBANA_HOST: "{{ KIBANA_HOST_VAULT }}"
-          LOGSTASH_HOST: "{{ LOGSTASH_HOST_VAULT }}"
   
     - name: Kopiowanie konfiguracji filebeat
       template:
