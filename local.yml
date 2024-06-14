@@ -32,12 +32,12 @@
           - filebaet
   
     - name: Kopiowanie konfiguracji
-        template:
-          src: templates/metricbeat.j2
-          dest: /etc/metricbeat/metricbeat.yml
+      template:
+        src: templates/metricbeat.j2
+        dest: /etc/metricbeat/metricbeat.yml
   
     - name: Metricbeat setup
-      command: "{{ item }}" setup
+      command: "{{ item }} setup"
       loop:
         - metricbeat
   #     - filebeat
