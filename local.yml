@@ -45,7 +45,7 @@
     - name: Kopiowanie konfiguracji filebeat
       template:
         src: templates/filebeat.j2
-        dest: /etc/metricbeat/filebeat.yml
+        dest: /etc/filebeat/filebeat.yml
     
     - name: Wlaczanie uslug
       systemd:
