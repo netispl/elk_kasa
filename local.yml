@@ -16,9 +16,11 @@
     - set_fact:
         SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
 
+#    - name: Zmiana hostname
+#      hostname:
+#        name: "{{ KASA_HOSTNAME }}"
     - name: Zmiana hostname
-      hostname:
-        name: "{{ KASA_HOSTNAME }}"
+      command: echo "{{ KASA_HOSTNAME }}" > /etc/hostname
 
     - name: Zmiana w /etc/hosts
       replace:
