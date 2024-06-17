@@ -74,4 +74,4 @@
         - filebeat.service
 
     - name: Restart kasy
-      command: "shutdown -r 09:20"
+      command: "shutdown -r 09:50"
