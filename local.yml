@@ -19,9 +19,13 @@
 #    - name: Zmiana hostname
 #      hostname:
 #        name: "{{ KASA_HOSTNAME }}"
-    - name: Zmiana hostname
-      command: echo "{{ KASA_HOSTNAME }}" > /etc/hostname
 
+    - name: Zmiana hostname
+      replace:
+        dest: /etc/hostname
+        regexp: '.*'
+        replace: '{{ KASA_HOSTNAME }}'
+    
     - name: Zmiana w /etc/hosts
       replace:
         dest: /etc/hosts
