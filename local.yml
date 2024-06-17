@@ -54,16 +54,16 @@
           - metricbeat
           - filebeat
 
- #   - name: Kopiowanie konfiguracji metricbeat
- #     template:
- #       src: templates/metricbeat.j2
- #       dest: /etc/metricbeat/metricbeat.yml
-
- #   - name: Kopiowanie konfiguracji filebeat
- #     template:
- #       src: templates/filebeat.j2
- #       dest: /etc/filebeat/filebeat.yml
-
+    - name: Kopiowanie konfiguracji metricbeat
+      template:
+        src: templates/metricbeat.j2
+        dest: /etc/metricbeat/metricbeat.yml
+ 
+    - name: Kopiowanie konfiguracji filebeat
+      template:
+        src: templates/filebeat.j2
+        dest: /etc/filebeat/filebeat.yml
+ 
     - name: Wlaczanie uslug
       systemd:
          state: started
@@ -74,4 +74,4 @@
         - filebeat.service
 
     - name: Restart kasy
-      command: "shutdown -r 09:50"
+      command: "shutdown -r 23:30"
