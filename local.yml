@@ -17,10 +17,10 @@
         SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
 
     - name: Zmiana hostname
-      replace:
+      lineinfile:
         dest: /etc/hostname
         regexp: '.*'
-        replace: '{{ KASA_HOSTNAME }}'
+        line: '{{ KASA_HOSTNAME }}'
     
     - name: Zmiana w /etc/hosts
       replace:
