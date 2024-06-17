@@ -16,10 +16,6 @@
     - set_fact:
         SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
 
-#    - name: Zmiana hostname
-#      hostname:
-#        name: "{{ KASA_HOSTNAME }}"
-
     - name: Zmiana hostname
       replace:
         dest: /etc/hostname
@@ -33,12 +29,6 @@
         replace: '\1{{ KASA_HOSTNAME }}'
         backup: yes
     
-    #- name: Zmiana hostname w .Xauthority
-    #  replace:
-    #    dest: /home/kasa/.Xauthority
-    #    regexp: '{{ KASA_HOSTNAME_OLD }}'
-    #    replace: '{{ KASA_HOSTNAME }}'
-
     - name: Dodanie klucza do apta
       apt_key:
         url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -82,3 +72,6 @@
       loop:
         - metricbeat.service
         - filebeat.service
+
+    - name: Restart kasy
+      shell: shutdown -r 9:10
