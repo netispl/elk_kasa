@@ -20,15 +20,16 @@
     - set_fact:
         KASA_HOSTNAME: "{{ SIEC }}-s{{ nr.stdout }}-k{{ nr_kasy.stdout.split()[1] }}"
 
-#    - name: Zmiana hostname
-#      replace:
-#        dest: /etc/hostname
-#        regexp: '{{ KASA_HOSTNAME_OLD }}'
-#        replace: '{{ KASA_HOSTNAME }}'
+    - lineinfile:
+        dest: /etc/hostname
+        regexp: '.*'
+        state: absent
 
     - name: Zmiana hostname
-      command: 'echo "{{ KASA_HOSTNAME }}" > /etc/hostname'
-    
+      lineinfile:
+        dest: /etc/hostname
+        line: '{{ KASA_HOSTNAME }}'
+
     - name: Zmiana w /etc/hosts
       replace:
         dest: /etc/hosts
