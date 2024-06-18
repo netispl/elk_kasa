@@ -10,7 +10,7 @@
         KASA_HOSTNAME_OLD: "{{ ansible_hostname }}"
 
     - name: Sprawdzam numer sklepu
-      command: grep numer_kasy konfiguracja/zmienne.dat
+      command: grep numer_kasy /home/kasa/konfiguracja/zmienne.dat
       register: nr  
 
     - name: Sprawdzam numer kasy
