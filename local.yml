@@ -9,22 +9,25 @@
     - set_fact:
         KASA_HOSTNAME_OLD: "{{ ansible_hostname }}"
 
-    - name: Sprawdzam numer sklepu
-      command: grep numer_kasy /home/kasa/konfiguracja/zmienne.dat
-      register: nr  
-
     - name: Sprawdzam numer kasy
+      command: grep numer_kasy /home/kasa/konfiguracja/zmienne.dat
+      register: nr_kasy  
+
+    - name: Sprawdzam numer sklepu
       command: mysql kasa -Ns -e "select stan from StanKasy2 where idStanu='Numer Sklepu';"
-      register: nr_kasy
+      register: nr
 
     - set_fact:
-        KASA_HOSTNAME: "{{ SIEC }}s{{ nr.stdout.split()[1] }}-k{{ nr_kasy.stdout }}"
+        KASA_HOSTNAME: "{{ SIEC }}-s{{ nr.stdout }}-k{{ nr_kasy.stdout.split()[1] }}"
+
+#    - name: Zmiana hostname
+#      replace:
+#        dest: /etc/hostname
+#        regexp: '{{ KASA_HOSTNAME_OLD }}'
+#        replace: '{{ KASA_HOSTNAME }}'
 
     - name: Zmiana hostname
-      replace:
-        dest: /etc/hostname
-        regexp: '{{ KASA_HOSTNAME_OLD }}'
-        replace: '{{ KASA_HOSTNAME }}'
+      command: 'echo "{{ KASA_HOSTNAME }}" > /etc/hostname'
     
     - name: Zmiana w /etc/hosts
       replace:
