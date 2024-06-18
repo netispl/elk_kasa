@@ -9,18 +9,22 @@
     - set_fact:
         KASA_HOSTNAME_OLD: "{{ ansible_hostname }}"
 
-    - set_fact:
-        #KASA_HOSTNAME: "{{ lookup('file', '/etc/hostname') }}"
-        KASA_HOSTNAME: "{{ HOST }}"
+    - name: Sprawdzam numer sklepu
+      command: grep numer_kasy konfiguracja/zmienne.dat
+      register: nr  
+
+    - name: Sprawdzam numer kasy
+      command: mysql kasa -Ns -e "select stan from StanKasy2 where idStanu='Numer Sklepu';"
+      register: nr_kasy
 
     - set_fact:
-        SIEC: "{{ KASA_HOSTNAME.split('-')[0] }}"
+        KASA_HOSTNAME: "{{ SIEC }}s{{ nr.stdout.split()[1] }}-k{{ nr_kasy.stdout }}"
 
     - name: Zmiana hostname
-      lineinfile:
+      replace:
         dest: /etc/hostname
-        regexp: '.*'
-        line: '{{ KASA_HOSTNAME }}'
+        regexp: '{{ KASA_HOSTNAME_OLD }}'
+        replace: '{{ KASA_HOSTNAME }}'
     
     - name: Zmiana w /etc/hosts
       replace:
@@ -53,6 +57,15 @@
         name:
           - metricbeat
           - filebeat
+    
+    - name: Wylaczanie uslug
+      systemd:
+         state: stopped
+         enabled: yes
+         name: "{{ item }}"
+      loop:
+        - metricbeat.service
+        - filebeat.service
 
     - name: Kopiowanie konfiguracji metricbeat
       template:
@@ -64,14 +77,5 @@
         src: templates/filebeat.j2
         dest: /etc/filebeat/filebeat.yml
  
-    - name: Wlaczanie uslug
-      systemd:
-         state: started
-         enabled: yes
-         name: "{{ item }}"
-      loop:
-        - metricbeat.service
-        - filebeat.service
-
     - name: Restart kasy
-      command: "shutdown -r 23:30"
+      command: "shutdown -r 23:15"
