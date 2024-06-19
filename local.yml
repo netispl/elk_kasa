@@ -20,8 +20,9 @@
     - set_fact:
         KASA_HOSTNAME: "{{ SIEC }}-s{{ nr.stdout }}-k{{ nr_kasy.stdout.split()[1] }}"
 
-    - debug: Ustawiam HOSTNAME
-        msg: "{{ KASA_HOSTNAME }}" 
+    - name: Ustawiam HOSTNAME
+      debug:
+        msg: "{{ KASA_HOSTNAME }}"
 
     - lineinfile:
         dest: /etc/hostname
