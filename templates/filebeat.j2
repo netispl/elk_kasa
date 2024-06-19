@@ -172,7 +172,9 @@ processors:
   - add_cloud_metadata: ~
   - add_docker_metadata: ~
   - add_kubernetes_metadata: ~
-  - add_id: ~
+  - fingerprint:
+      fields: ["message"]
+      target_field: "@metadata._id"
   - convert:
       fields:
         - {from: "status", to: "status", type: "integer"}

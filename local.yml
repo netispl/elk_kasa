@@ -11,7 +11,7 @@
 
     - name: Sprawdzam numer kasy
       command: grep numer_kasy /home/kasa/konfiguracja/zmienne.dat
-      register: nr_kasy  
+      register: nr_kasy
 
     - name: Sprawdzam numer sklepu
       command: mysql kasa -Ns -e "select stan from StanKasy2 where idStanu='Numer Sklepu';"
@@ -36,7 +36,7 @@
         regexp: '(^127.*)(kasa.*)'
         replace: '\1{{ KASA_HOSTNAME }}'
         backup: yes
-    
+
     - name: Dodanie klucza do apta
       apt_key:
         url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
@@ -61,7 +61,7 @@
         name:
           - metricbeat
           - filebeat
-    
+
     - name: Wylaczanie uslug
       systemd:
          state: stopped
@@ -75,11 +75,16 @@
       template:
         src: templates/metricbeat.j2
         dest: /etc/metricbeat/metricbeat.yml
- 
+
+    - name: Kopiowanie konfiguracji metricbeat.system
+      template:
+        src: templates/system.j2
+        dest: /etc/metricbeat/modules.d/system.yml
+
     - name: Kopiowanie konfiguracji filebeat
       template:
         src: templates/filebeat.j2
         dest: /etc/filebeat/filebeat.yml
- 
+
     - name: Restart kasy
       command: "shutdown -r 23:15"
